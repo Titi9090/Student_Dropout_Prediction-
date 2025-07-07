@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 from flask import Flask, request, jsonify
@@ -9,49 +9,37 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 
-app = Flask(__name__)
-
-# ✅ Secure CORS setup — only allow specific origins
-CORS(app, resources={
-    r"/predict": {"origins": ["http://localhost:3000", "https://your-app-frontend.com"]}
-})
-
+# Load trained Random Forest model
 model = joblib.load("rf_model.pkl")
 
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)
+
 @app.route('/')
-def home():
-    return jsonify({"message": "Model API is running!"})
+def index():
+    return jsonify({"message": "🎯 Random Forest API is running!"})
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.get_json()
-    input_features = np.array(data['features']).reshape(1, -1)
-    prediction = model.predict(input_features)[0]
-    return jsonify({'prediction': str(prediction)})
+    try:
+        # Get JSON data
+        data = request.get_json()
+        features = data['features']  # Expecting a list of numerical features
+        input_array = np.array(features).reshape(1, -1)
+         # Prediction
+        prediction = model.predict(input_array)[0]
+
+        return jsonify({'prediction': str(prediction)})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(debug=False)  # Set debug=False in production
-
-CORS(app, resources={
-    r"/predict": {
-        "origins": ["https://your-app.com"],
-        "methods": ["POST"],
-        "allow_headers": ["Content-Type"]
-    }
-})
-
-from flask_cors import CORS
-CORS(app)
-
-from flask_cors import CORS
-
-# Only allow specific origins
-cors = CORS(app, resources={
-    r"/predict": {"origins": ["https://your-frontend-domain.com", "http://localhost:3000"]}
-})
+    app.run(debug=True)
 
 
-# In[ ]:
+# In[2]:
 
 
 get_ipython().system('jupyter nbconvert --to script app.ipynb')
