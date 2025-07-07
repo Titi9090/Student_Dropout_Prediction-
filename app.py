@@ -40,6 +40,16 @@ CORS(app, resources={
     }
 })
 
+from flask_cors import CORS
+CORS(app)
+
+from flask_cors import CORS
+
+# Only allow specific origins
+cors = CORS(app, resources={
+    r"/predict": {"origins": ["https://your-frontend-domain.com", "http://localhost:3000"]}
+})
+
 
 # In[ ]:
 
